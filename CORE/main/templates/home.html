@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+
+<div class="container">
+    <!-- Hero Section -->
+    <div class="hero-section text-center py-5">
+        <h1 class="display-4">Welcome to CORE!</h1>
+        <p class="lead">Connecting people in need with local resources and donations efficiently.</p>
+        <p>CORE enables individuals, organizations, and charities to unite for timely, localized solutions.</p>
+        <a href="{% url 'signup' %}" class="btn btn-primary btn-lg mt-3">Get Started</a>
+    </div>
+
+    <!-- About Section -->
+    <section class="about-section py-5">
+        <h2>About CORE</h2>
+        <p>CORE is a request and donation platform that connects people in need with available resources and services in their community. Whether you need food, clothing, or support services, CORE makes it easy to submit a request or find assistance nearby.</p>
+        <p>Our mission is to make essential resources accessible and efficient for those who need them most, fostering a supportive network within the local area.</p>
+    </section>
+
+    <!-- Recent Requests & Success Stories -->
+    <div class="col-md-6">
+        <h2>Recent Requests</h2>
+        <ul class="list-group">
+            {% for request in recent_requests %}
+            <li class="list-group-item">
+                <strong>{{ request.title }}</strong> by {{ request.user.username }}
+                <span class="badge badge-primary">{{ request.get_status_display }}</span>
+                <p class="mb-1">{{ request.description|truncatewords:20 }}</p>
+                <small>Submitted on: {{ request.created_at|date:"SHORT_DATE_FORMAT" }}</small>
+            </li>
+            {% empty %}
+            <li class="list-group-item">No recent requests available.</li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    
+
+        <!-- Success Stories -->
+        <div class="col-md-6">
+            <h2>Success Stories</h2>
+            <div class="card success-story">
+                <div class="card-body">
+                    <h5 class="card-title">Helping Families in Need</h5>
+                    <p class="card-text">See how John's grocery store has made a difference in his community by donating surplus food supplies to local families.</p>
+                    {#<a href="{% url 'success_stories' %}" class="btn btn-primary">Read More</a>#}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works py-5">
+        <h2>How It Works</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <h4>1. Submit or Browse Requests</h4>
+                <p>People in need can submit requests for resources, while providers can browse requests and fulfill them.</p>
+            </div>
+            <div class="col-md-4">
+                <h4>2. Connect & Coordinate</h4>
+                <p>Our secure messaging system lets you coordinate pick-ups, deliveries, and details seamlessly.</p>
+            </div>
+            <div class="col-md-4">
+                <h4>3. Make a Difference</h4>
+                <p>By participating, you're contributing to a stronger, more supportive community.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section py-5">
+        <h2>Platform Features</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <h5>User Profiles</h5>
+                <p>Create and manage profiles for both requesters and providers, with customized options for each.</p>
+            </div>
+            <div class="col-md-4">
+                <h5>Request Matching</h5>
+                <p>Our system automatically matches requests with available providers based on location and type of need.</p>
+            </div>
+            <div class="col-md-4">
+                <h5>Notifications</h5>
+                <p>Get instant notifications when a request is accepted, a message is received, or a request is fulfilled.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials py-5">
+        <h2>What Our Users Say</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <blockquote>
+                    <p>"CORE helped me connect with local donors when I needed it most. I'm so grateful for the support!"</p>
+                    <footer>— Maria, Mother in Need</footer>
+                </blockquote>
+            </div>
+            <div class="col-md-4">
+                <blockquote>
+                    <p>"As a grocery store owner, I'm glad to have an easy way to help those in need in my community."</p>
+                    <footer>— John, Grocery Store Owner</footer>
+                </blockquote>
+            </div>
+            <div class="col-md-4">
+                <blockquote>
+                    <p>"The platform made it simple to coordinate aid for our clients. It's a game-changer for us!"</p>
+                    <footer>— Sarah, Volunteer Coordinator</footer>
+                </blockquote>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

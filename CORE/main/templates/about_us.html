@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/about.css' %}">
+
+<div class="about-container">
+    <h1>About Us</h1>
+    <p>Welcome to our About Us page. Here, you can learn more about our mission, our team, and our story.</p>
+    <p>Our company was founded in [Year] with the goal of providing [services/products] to [target audience]. Our team is dedicated to [brief mention of your values or goals].</p>
+    <h2>Meet Our Team</h2>
+    <div class="team-member">
+        <img src="{% static 'images/member1.jpg' %}" alt="Team Member 1">
+        <h3>John Doe</h3>
+        <p>Position: Founder & CEO</p>
+        <p>John has over 20 years of experience in [Industry]. He loves [hobby or interest].</p>
+    </div>
+    <div class="team-member">
+        <img src="{% static 'images/member2.jpg' %}" alt="Team Member 2">
+        <h3>Jane Smith</h3>
+        <p>Position: Chief Technology Officer</p>
+        <p>Jane is an expert in [field] with [number] years of experience. She is passionate about [interest].</p>
+    </div>
+    <!-- Add more team members as needed -->
+</div>
+{% endblock %}

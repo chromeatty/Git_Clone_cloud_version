@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+<div class="container">
+    <h2>Your Inbox</h2>
+    <ul>
+        {% for message in messages %}
+        <li>
+            <strong>From:</strong> {{ message.sender.username }} - {{ message.timestamp }}
+            <p>{{ message.content }}</p>
+        </li>
+        {% empty %}
+        <li>No messages.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

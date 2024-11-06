@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<div class="container mt-4">
+    <h2>Available Requests</h2>
+    <div class="list-group">
+        {% for request in requests %}
+        <div class="list-group-item" id="request-{{ request.id }}">
+            <h5 class="mb-1">{{ request.title }}</h5>
+            <p><strong>Description:</strong> {{ request.description }}</p>
+            <p><strong>Location:</strong> {{ request.location }}</p>
+            <p><strong>Category:</strong> {{ request.category }}</p>
+            <p><strong>Urgency:</strong> {{ request.get_urgency_display }}</p>
+            <p><strong>Status:</strong> {{ request.get_status_display }}</p>
+            <p><strong>Requested by:</strong> {{ request.user.username }}</p>
+            <p><strong>Accepted by:</strong> {{ request.accepted_by }}</p>
+
+            <form class="accept-form" data-request-id="{{ request.id }}">
+                {% csrf_token %}
+                <input type="hidden" name="request_id" value="{{ request.id }}">
+                {% if request.accepted_by %}
+                <button type="button" class="btn btn-danger accept-btn" data-action="retract">Retract</button>
+                {% else %}
+                <button type="button" class="btn btn-success accept-btn" data-action="accept">Accept</button>
+                {% endif %}
+            </form>
+        </div>
+        {% empty %}
+        <div class="list-group-item">No requests available.</div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('.accept-btn').click(function() {
+        var btn = $(this);
+        var form = btn.closest('form');
+        var requestId = form.data('request-id');
+        var action = btn.data('action');
+        var csrfToken = form.find('[name="csrfmiddlewaretoken"]').val();
+
+        if(confirm('Are you sure you want to ' + action + ' this request?')) {
+            $.ajax({
+                url: "{% url 'view_requests_and_accept' %}",
+                type: "POST",
+                data: {
+                    'request_id': requestId,
+                    'action': action,
+                    'csrfmiddlewaretoken': csrfToken
+                },
+                success: function(response) {
+                    if(action === 'accept') {
+                        btn.removeClass('btn-success').addClass('btn-danger').text('Retract');
+                        btn.data('action', 'retract');
+                    } else {
+                        btn.removeClass('btn-danger').addClass('btn-success').text('Accept');
+                        btn.data('action', 'accept');
+                    }
+                }
+            });
+        }
+    });
+});
+</script>
+
+{% endblock %}

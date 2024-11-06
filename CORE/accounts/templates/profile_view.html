@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/profile_view.css' %}">
+<div class="profile-container">
+    <h2>Your Profile</h2>
+    <p><strong>Contact Info:</strong> {{ profile.contact_info }}</p>
+    <p><strong>Service Areas:</strong> {{ profile.service_areas }}</p>
+    <p><strong>Preferences:</strong> {{ profile.preferences }}</p>
+    <p><strong>Privacy Settings:</strong> {{ profile.privacy_settings }}</p>
+    <a href="{% url 'profile_edit' %}" class="edit-link">Edit Profile</a>
+
+    <div id="map" style="height:400px;width:100%;margin-top:20px;"></div>
+</div>
+
+<script>
+function initMap() {
+    var location = {lat: {{ profile.latitude }}, lng: {{ profile.longitude }}};
+    var map = new google.maps.Map(document.getElementById('map'), {zoom: 12, center: location});
+    var marker = new google.maps.Marker({position: location, map: map});
+}
+</script>
+<script 
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&libraries=maps&v=beta" defer="">
+</script>
+
+{% endblock %}

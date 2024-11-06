@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<div class="container mt-4">
+    <h2 class="text-center mb-3">Your Requests</h2>
+    <div class="row requests-container">
+        {% for request in requests_app %}
+            <div class="col-md-6 col-lg-6 mb-4" id="request-{{ request.id }}">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ request.title }}</h5>
+                        <p class="card-text"><i class="fas fa-align-left"></i> <strong>Description:</strong> {{ request.description }}</p>
+                        <p class="card-text"><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> {{ request.location }}</p>
+                        <p class="card-text"><i class="fas fa-filter"></i> <strong>Category:</strong> {{ request.category }}</p>
+                        <p class="card-text"><i class="fas fa-bolt"></i> <strong>Urgency:</strong> {{ request.get_urgency_display }}</p>
+                        <p class="card-text"><i class="fas fa-info-circle"></i> <strong>Status:</strong> {{ request.get_status_display }}</p>
+                        <p class="card-text"><i class="fas fa-calendar-alt"></i> <strong>Submitted on:</strong> {{ request.created_at|date:"SHORT_DATE_FORMAT" }}</p>
+                        {% if request.accepted_by %}
+                        <p class="card-text"><i class="fas fa-user-check"></i> <strong>Accepted by:</strong> {{ request.accepted_by.username }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer bg-transparent d-flex justify-content-between">
+                        <div class="d-flex justify-content-between align-items-left ">
+                            {% if not request.accepted_by %}
+                            <a href="{% url 'edit_request' request.pk %}" class="btn btn-secondary mr-2">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex justify-content-between align-items-right ">
+                            <form class="delete-form" data-request-id="{{ request.id }}">
+                                {% csrf_token %}
+                                <input type="hidden" name="request_id" value="{{ request.id }}">
+                                <button type="button" class="btn btn-danger delete-btn">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+        <div class="col-12 no-requests-message">
+            <div class="alert alert-info text-center">No requests found.</div>
+        </div>
+        {% endfor %} 
+    </div>
+    <hr>
+    <a href="{% url 'create_request' %}"><button type="button2" class="btn btn-secondary btn-lg btn-block">Create New Request</button></a>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('.delete-btn').click(function() {
+            var btn = $(this);
+            var form = btn.closest('form');
+            var requestId = form.data('request-id');
+            var csrfToken = form.find('[name="csrfmiddlewaretoken"]').val();
+    
+            if (confirm('Are you sure you want to delete this request?')) {
+                $.ajax({
+                    url: `/delete_request/${requestId}/`,  // Make sure this URL matches your URL pattern for delete_request
+                    type: "POST",
+                    data: {
+                        'csrfmiddlewaretoken': csrfToken
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            $('#request-' + requestId).remove();
+                            if ($('.requests-container .col-md-6').length === 0) {
+                                $('.requests-container').append('<div class="col-12 no-requests-message"><div class="alert alert-info text-center">No requests found.</div></div>');
+                            }
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function(xhr, errmsg, err) {
+                        alert('Could not delete. Error: ' + xhr.status + ': ' + xhr.responseText);
+                    }
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+

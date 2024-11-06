@@ -1,0 +1,50 @@
+.hero-section {
+    background-color: #f7f7f7;
+    padding: 40px;
+    text-align: center;
+    border-radius: 10px;
+}
+
+.about-section, .how-it-works, .features-section, .testimonials {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.list-group-item {
+    margin-bottom: 10px;
+}
+
+.success-story {
+    background-color: #e0f7fa;
+    border: none;
+}
+
+blockquote {
+    font-size: 0.9em;
+    border-left: 5px solid #007bff;
+    padding-left: 10px;
+}
+
+blockquote footer {
+    font-size: 0.8em;
+    color: #6c757d;
+}
+
+.features-section .col-md-4, .how-it-works .col-md-4 {
+    text-align: center;
+}
+
+.features-section h5, .how-it-works h4 {
+    color: #007bff;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
