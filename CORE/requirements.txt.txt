@@ -1,0 +1,4 @@
+Django==5.1.2
+django-crispy-forms
+django-filter
+requests
