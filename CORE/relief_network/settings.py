@@ -27,6 +27,7 @@ DEBUG = False
 #DEBUG = True
 
 ALLOWED_HOSTS = ['34.244.32.115', 'localhost']
+print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
 
 
 # Application definition
