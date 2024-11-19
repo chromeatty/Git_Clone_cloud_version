@@ -82,3 +82,9 @@ th, td {
 th {
     background-color: #f4f4f4;
 }
+
+:root {
+    --button-size-small: 8px 16px;
+    --button-size-medium: 12px 24px;
+    --button-size-large: 16px 32px;
+  }

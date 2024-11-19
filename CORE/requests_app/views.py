@@ -2,7 +2,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render, redirect
 from .forms import RequestForm
 from .models import Request
-from django.contrib import messages
+#from django.contrib import messages
+from django.http import JsonResponse
 
 @login_required
 def create_request(request):
@@ -27,7 +28,10 @@ def user_request_list(request):
     req = Request.objects.filter(user=request.user)
     return render(request, 'user_request_list.html', {'requests_app': req})
 
-
+@login_required
+def user_request_details(request, pk):
+    req = get_object_or_404(Request, pk=pk)
+    return render(request, 'user_request_details.html', {'request_': req})
 
 @login_required
 def edit_request(request, pk):
@@ -41,23 +45,6 @@ def edit_request(request, pk):
         form = RequestForm(instance=req)
     return render(request, 'edit_request.html', {'form': form})
 
-
-"""
-@login_required
-def delete_request(request, pk):
-    req = get_object_or_404(Request, pk=pk, user=request.user)  # Ensures only the owner can delete
-    if request.method == 'POST':
-        req.delete()
-        messages.success(request, "The request has been deleted successfully.")
-        return redirect('user_request_list')
-    else:
-        messages.error(request, "Invalid method.")
-        return redirect('user_request_list')
-"""
-from django.http import JsonResponse
-
-
-
 @login_required
 def delete_request(request, pk):
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -68,41 +55,43 @@ def delete_request(request, pk):
 
 
 # This is to allow requesers to view offers and like/ save what they have seen
-
-
 from offers.models import Offer
 
+@login_required
+def requester_view_offers_detail(request, offer_id):
+    offer = get_object_or_404(Offer, pk=offer_id)
+    return render(request, 'requester_view_offers_detail.html', {'offer': offer})
 
 @login_required
 def requester_view_offers(request):
     offers = Offer.objects.all()
-    if request.method == 'POST':
-        offer_id = request.POST.get('offer_id')
-        offer = Offer.objects.get(id=offer_id)
-        if offer.likes.filter(id=request.user.id).exists():
-            offer.likes.remove(request.user)
-        else:
-            offer.likes.add(request.user)
-        return redirect('requester_view_offers')
-
     return render(request, 'requester_view_offers.html', {'offers': offers})
 
 @login_required
-def requester_view_offers_detail(request, pk):
-    offer = get_object_or_404(Offer, pk=pk)
-    return render(request, 'requester_view_offers_detail.html', {'offer': offer})
-
 @login_required
 def requester_liked_offers(request):
-    offers = Offer.objects.filter(likes=request.user)# only show offers that the user has liked
-    if request.method == 'POST':
-        offer_id = request.POST.get('offer_id')
-        offer = Offer.objects.get(id=offer_id)
-        if offer.likes.filter(id=request.user.id).exists():
-            offer.likes.remove(request.user)
-            offers = Offer.objects.filter(likes=request.user)
-        #else:
-            #offer.likes.add(request.user) # This is not needed here as you cant add a like from this page
-            return redirect('requester_liked_offers')
+    offers = Offer.objects.filter(likes=request.user)
     return render(request, 'requester_liked_offers.html', {'offers': offers})
 
+@login_required
+def toggle_like(request):
+    if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        offer_id = request.POST.get('offer_id')
+        offer = get_object_or_404(Offer, id=offer_id)
+        liked = request.user in offer.likes.all()
+
+        if liked:
+            offer.likes.remove(request.user)
+        else:
+            offer.likes.add(request.user)
+        
+        return JsonResponse({
+            'status': 'success',
+            'liked': not liked,
+            'likes_count': offer.likes.count()
+        })
+
+    return JsonResponse({
+        'status': 'error',
+        'error': 'Invalid request or not an AJAX request'
+    }, status=400)

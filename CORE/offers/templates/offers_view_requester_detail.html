@@ -4,12 +4,9 @@
 {% load static %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 
-<div class="container mt-4" data-page-type="offer_view_all_requests">
-    <h2 class="text-center mb-3">Available Requests</h2>
+<div class="container mt-8" data-page-type="offer_view_detail_requester">
     <div class="row request-container">
-        {% for request_ in requests_app %}
-        {#  #}
-        <div class="col-md-6 col-lg-6 mb-4 item_request" id="request_-{{ request_.id }}">
+        <div class="col-md-12 col-lg-12 mb-4 item_request" id="request_-{{ request_.id }}">
             <div class="card">{#<div class="card h-100 shadow-sm">#}
                 <div class="card-header text-center">
                     <h3>{{ request_.title }}</h3>
@@ -22,7 +19,7 @@
                     <p class="card-text"><i class="fas fa-info-circle"></i> <strong>Status:</strong> {{ request_.get_status_display }}</p>
                     <p class="card-text"><i class="fas fa-calendar-alt"></i> <strong>Submitted on:</strong> {{ request_.created_at|date:"SHORT_DATE_FORMAT" }}</p>
                     {% if request_.accepted_by %}
-                    <p class="card-text"><i class="fas fa-user-check"></i> <strong>Accepted by:</strong> {{ request_.accepted_by.username }}</p>
+                    <p class="card-text accepted-by"><i class="fas fa-user-check"></i> <strong>Accepted by:</strong> {{ request_.accepted_by.username }}</p>
                     {% endif %}
                 </div>
                 <div method="post" class="card-footer bg-transparent d-flex justify-content-between">
@@ -31,37 +28,23 @@
                             <i class="fas fa-envelope"></i> Message
                         </a>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center ">
-                        <a href="{% url 'offers_view_requester_detail' request_.id %}" class="btn btn-primary">
-                            <i class="fas fa-info-circle"></i> Details
-                        </a>
-                    </div>
-                
                     <div class="d-flex justify-content-between align-items-right">
-                        <form method="post" class="accept-form" data-request-id="{{ request_.id }}">
+                        <form class="accept-form" data-request-id="{{ request_.id }}">
                             {% csrf_token %}
-                            <button type="button" class="btn {% if request_.accepted_by %}btn-danger{% else %}btn-success{% endif %} accept-btn"
-                            {#Test functionality through pop up message box#}
-                                data-action="{% if request_.accepted_by == request.user %}retract{% else %}accept{% endif %}">
-                                {% if request_.accepted_by %}
-                                <i class="fas fa-user-slash"></i> Retract
-                                {% else %}
-                                <i class="fas fa-user-plus"></i> Accept
-                                {% endif %}
-                            </button>
+                            <input type="hidden" name="request_id" value="{{ request_.id }}">
+                            {% if request_.accepted_by %}
+                            <button type="button" class="btn btn-danger accept-btn" data-action="retract">Retract</button>
+                            {% else %}
+                            <button type="button" class="btn btn-success accept-btn" data-action="accept">Accept</button>
+                            {% endif %}
                         </form>
-                    </div>                    
+                    </div>
                 </div>
             </div>
         </div>
-        {% empty %}
-        <div class="col-12 no-requests">
-            <div class="alert alert-info text-center">No more available requests.</div>
-        </div>
-        {% endfor %}
     </div>
     <hr>
-    <a href="{% url 'view_accepted_requests' %}"><button type="button2" class="btn btn-secondary btn-lg btn-block">View accepted requests</button></a>
+    <a href="{{request.META.HTTP_REFERER|escape}}"><button type="button2" class="btn btn-secondary btn-lg btn-block">Return</button></a>
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 {% load static %}

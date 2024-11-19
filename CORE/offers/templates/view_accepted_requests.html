@@ -3,77 +3,66 @@
 {% block content %}
 {% load static %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-<div class="container mt-4">
-    <h2>Accepted Requests</h2>
-    <div class="list-group">
-        {% for request in requests %}
-        <div class="list-group-item" id="request-{{ request.id }}">
-            <h5 class="mb-1">{{ request.title }}</h5>
-            <p><strong>Description:</strong> {{ request.description }}</p>
-            <p><strong>Location:</strong> {{ request.location }}</p>
-            <p><strong>Category:</strong> {{ request.category }}</p>
-            <p><strong>Urgency:</strong> {{ request.get_urgency_display }}</p>
-            <p><strong>Status:</strong> {{ request.get_status_display }}</p>
-            <p><strong>Requested by:</strong> {{ request.user.username }}</p>
-            <p><strong>Accepted by:</strong> {{ request.accepted_by }}</p>
-
-
-            <form class="accept-form" data-request-id="{{ request.id }}">
-                {% csrf_token %}
-                <input type="hidden" name="request_id" value="{{ request.id }}">
-                {% if request.accepted_by %}
-                <button type="button" class="btn btn-danger accept-btn" data-action="retract">Retract</button>
-                {% endif %}
-            </form>
+<div class="container mt-4" data-page-type="offer_view_accepted_requests">
+    <h2 class="text-center mb-3">Accepted Requests</h2>
+    <div class="row request-container">
+        {# ensuer to use request_ as request is a django variable#}
+        {% for request_ in requests_app %}
+        <div class="col-md-6 col-lg-6 mb-4 item_request" id="request_-{{ request_.id }}">
+            <div class="card">{#<div class="card h-100 shadow-sm">#}
+                <div class="card-header text-center">
+                    <h3>{{ request_.title }}</h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-text"><i class="fas fa-align-left"></i> <strong>Description:</strong> {{ request_.description }}</p>
+                    <p class="card-text"><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> {{ request_.location }}</p>
+                    <p class="card-text"><i class="fas fa-filter"></i> <strong>Category:</strong> {{ request_.category }}</p>
+                    <p class="card-text"><i class="fas fa-bolt"></i> <strong>Urgency:</strong> {{ request_.get_urgency_display }}</p>
+                    <p class="card-text"><i class="fas fa-info-circle"></i> <strong>Status:</strong> {{ request_.get_status_display }}</p>
+                    <p class="card-text"><i class="fas fa-calendar-alt"></i> <strong>Submitted on:</strong> {{ request_.created_at|date:"SHORT_DATE_FORMAT" }}</p>
+                    {% if request_.accepted_by %}
+                    <p class="card-text"><i class="fas fa-user-check"></i> <strong>Accepted by:</strong> {{ request_.accepted_by.username }}</p>
+                    {% endif %}
+                </div>
+                <div method="post" class="card-footer bg-transparent d-flex justify-content-between">
+                    <div class="d-flex justify-content-between align-items-left ">
+                        <a href="{% url 'send_message_to' request_.user.id %}" class="btn btn-primary">
+                            <i class="fas fa-envelope"></i> Message
+                        </a>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center ">
+                        <a href="{% url 'offers_view_requester_detail' request_.id %}" class="btn btn-primary">
+                            <i class="fas fa-info-circle"></i> Details
+                        </a>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-right">
+                        <form method="post" class="accept-form" data-request-id="{{ request_.id }}">
+                            {% csrf_token %}
+                            <button type="button" class="btn {% if request_.accepted_by %}btn-danger{% else %}btn-success{% endif %} accept-btn"
+                            {#Test functionality through pop up message box#}
+                                data-action="{% if request_.accepted_by == request.user %}retract{% else %}accept{% endif %}">
+                                {% if request_.accepted_by %}
+                                <i class="fas fa-user-slash"></i> Retract
+                                {% else %}
+                                <i class="fas fa-user-plus"></i> Accept
+                                {% endif %}
+                            </button>
+                        </form>
+                    </div>                     
+                </div>
+            </div>
         </div>
         {% empty %}
-        <div class="list-group-item">No accepted requests available.</div>
+        <div class="col-12 no-requests">
+            <div class="alert alert-info text-center">No accepted requests.</div>
+        </div>
         {% endfor %}
     </div>
+    <hr>
+    <a href="{% url 'view_requests_and_accept' %}"><button type="button2" class="btn btn-secondary btn-lg btn-block">View available requests</button></a>
 </div>
-
-<script>
-$(document).ready(function() {
-    $('.accept-btn').click(function() {
-        var btn = $(this);
-        var form = btn.closest('form');
-        var requestItem = btn.closest('.list-group-item'); // Gets the parent container of the form
-        var requestId = form.data('request-id');
-        var action = btn.data('action');
-        var csrfToken = form.find('[name="csrfmiddlewaretoken"]').val();
-
-        if(confirm('Are you sure you want to ' + action + ' this request?')) {
-            $.ajax({
-                url: "{% url 'view_accepted_requests' %}",  // Ensure this URL points to your view handling the POST request
-                type: "POST",
-                data: {
-                    'request_id': requestId,
-                    'action': action,
-                    'csrfmiddlewaretoken': csrfToken
-                },
-                success: function(response) {
-                    if (response.status === 'accepted') {
-                        btn.removeClass('btn-success').addClass('btn-danger').text('Retract');
-                        btn.data('action', 'retract');
-                    } else if (response.status === 'pending') {
-                        // Option to hide the form
-                        requestItem.remove(); // This removes the item from the list
-
-                        // Or, option to update the button/text
-                        // btn.removeClass('btn-danger').addClass('btn-success').text('Accept');
-                        // btn.data('action', 'accept');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    // Handle error
-                    alert('Error: ' + xhr.responseJSON.message);
-                }
-            });
-        }
-    });
-});
-</script>
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+{% load static %}
+<script src="{% static 'js/accept_request.js' %}"></script>
 {% endblock %}

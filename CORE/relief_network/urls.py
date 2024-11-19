@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth.views import LogoutView # used for logout
+# to direct javascript to the correct url
 
 #from accounts.views import CustomLogoutView as CustomLogoutView__  # Adjust the import according to your file structure
 from accounts import views as accounts_views
@@ -53,9 +54,13 @@ urlpatterns = [
     path('dashboard/', analytics_views.dashboard, name='dashboard'),
 
     # communication views
-    path('send/', communication_views.send_message, name='send_message'),
-    path('send/<int:recipient_id>/', communication_views.send_message, name='send_message_to'),
     path('inbox/', communication_views.inbox, name='inbox'),
+    path('send/', communication_views.send_message, name='send_message'),
+    path('view_message/<int:message_id>/', communication_views.view_message, name='view_message'),
+    path('send/<int:recipient_id>/', communication_views.send_message, name='send_message_to'),
+    path('delete_message/<message_id>/', communication_views.delete_message, name='delete_message'),
+    
+    
     
     # feedback views
     path('give_feedback/', feedback_views.give_feedback, name='give_feedback'),
@@ -69,19 +74,27 @@ urlpatterns = [
     path('user_offer_list/', offers_views.user_offer_list, name='user_offer_list'),# look at their own offers
     path('edit_offer/<int:pk>/', offers_views.edit_offer, name='edit_offer'), # changed
     path('delete_offer/<int:pk>/', offers_views.delete_offer, name='delete_offer'), # changed
-    path('view_requests_and_accept/', offers_views.offer_view_requests, {'page_type': 'all'}, name='view_requests_and_accept'),
-    path('view_accepted_requests/', offers_views.offer_view_requests, {'page_type': 'accepted'}, name='view_accepted_requests'),
-    #path('offer/<int:offer_id>/accept-or-retract/', offers_views.accept_or_retract_offer, name='accept_or_retract_offer'),
-    #path('accepted_requests/', offers_views.accepted_requests, name='accepted_requests'), # accept a request
+    path('user_offer_details/<int:pk>/', offers_views.user_offer_details, name='user_offer_details'),
+    #path('view_requests_and_accept/', offers_views.offer_view_requests, {'page_type': 'all'}, name='view_requests_and_accept'),
+    #path('view_accepted_requests/', offers_views.offer_view_requests, {'page_type': 'accepted'}, name='view_accepted_requests'),
+    path('view_requests_and_accept/', offers_views.view_requests_and_accept, name='view_requests_and_accept'),
+    path('view_accepted_requests/', offers_views.view_accepted_requests, name='view_accepted_requests'),
+    path('offers_view_requester_detail/<int:request_id>/', offers_views.offers_view_requester_detail, name='offers_view_requester_detail'),
+    path('toggle_accept/', offers_views.toggle_accept, name='toggle_accept'),
+    
+
     
     # requests views (for beneficiaries)
     path('create_request/', requests_views.create_request, name='create_request'),
     path('user_request_list/', requests_views.user_request_list, name='user_request_list'),
     path('edit_request/<int:pk>/', requests_views.edit_request, name='edit_request'),
     path('delete_request/<int:pk>/', requests_views.delete_request, name='delete_request'),
+    path('user_request_details/<int:pk>/', requests_views.user_request_details, name='user_request_details'),
+    
     path('requester_view_offers/', requests_views.requester_view_offers, name='requester_view_offers'),
-    path('requester_view_offers_detail/<int:pk>/', requests_views.requester_view_offers_detail, name='requester_view_offers_detail'),
+    path('requester_view_offers_detail/<int:offer_id>/', requests_views.requester_view_offers_detail, name='requester_view_offers_detail'),
     path('requester_liked_offers/', requests_views.requester_liked_offers, name='requester_liked_offers'),
+    path('toggle_like/', requests_views.toggle_like, name='toggle_like'),
     
     #path('cancel_request/<int:pk>/', requests_views.request_cancel, name='request_cancel'),# changed
     #path('search_requests/', requests_views.search_requests, name='search_requests'),
